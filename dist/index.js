@@ -1,29 +1,19 @@
-import fs from "fs";
-import http from "http";
+import express from "express";
+import path from "path";
+const app = express();
 const port = 8100;
-const server = http.createServer((req, res) => {
-    let filename = "." + req.url;
-    if (filename === "./") {
-        filename = "./index.html";
-    }
-    else if (filename === "./index" ||
-        filename === "./about" ||
-        filename === "./contact-me") {
-        filename = filename + ".html";
-    }
-    fs.readFile(filename, (err, data) => {
-        if (err) {
-            fs.readFile("./404.html", (err, data) => {
-                res.writeHead(404, { "Content-Type": "text/html" });
-                res.end(data);
-            });
-        }
-        else {
-            res.writeHead(200, { "Content-Type": "text/html" });
-            res.end(data);
-        }
-    });
+app.get("/", (req, res) => {
+    res.sendFile(path.resolve("dist/index.html"));
 });
-server.listen(port, () => {
+app.get("/about", (req, res) => {
+    res.sendFile(path.resolve("dist/about.html"));
+});
+app.get("/contact-me", (req, res) => {
+    res.sendFile(path.resolve("dist/contact-me.html"));
+});
+app.use((req, res, next) => {
+    res.status(404).sendFile(path.resolve("dist/404.html"));
+});
+app.listen(port, () => {
     console.log(`Listening on localhost:${port}`);
 });
